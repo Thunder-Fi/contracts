@@ -7,14 +7,13 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
 struct Agreement {
     bool active;
     bool accepted;
     bool settled;
     string agreementURL; //  ipfs://QmXeDSDdqSgxKZx6g62vJ4pD6AmbWWbzFNpdG9KdJXJggj
-    address paymentToken; // 0x60e1773636cf5e4a227d9ac24f20feca034ee25a - wFIL
+    address paymentToken;
     uint amount; // 500, 50,1000 etc
     uint creationTimestamp;
     uint expiryTimestamp;
@@ -22,17 +21,85 @@ struct Agreement {
     address purchaser; // The one receiving the invoice.
 }
 
-contract ThunderFi is Context, Ownable, ERC721URIStorage {
-    uint256 private contractIds;
-    string public baseURI = "https://elementalblockchain.infura-ipfs.io/ipfs/";
+error ThunderFi_UserInvalid();
+error ThunderFi_AgreementIdInvalid();
+
+contract ThunderFi is Context, Ownable {
+    uint private idCounter = 1;
+    string public baseURI = "https://gateway.lighthouse.storage/ipfs/";
 
     mapping(uint => Agreement) public agreements;
-    mapping(address => uint256[]) private addressToContracts;
+    mapping(address => uint[]) private addressToContracts;
     mapping(address => bool) public whitelisted;
 
-    constructor() ERC721("ThunderFi", "THDFI") Ownable(_msgSender()) {}
+    /// @dev STATUS -
+    //  0 : Inactive
+    //  1 : Active
+    //  2 : Accepted
+    //  3 : Settled
+    event AgreementStatusUpdate(
+        address indexed seller,
+        address indexed purchaser,
+        uint timestamp,
+        uint expiry,
+        uint status
+    );
 
-    function isWhitelisted(address _address) public view returns (bool) {
-        return whitelisted[_address];
+    constructor() Ownable(_msgSender()) {}
+
+    modifier isWhitelisted(address _user) {
+        if (whitelisted[_user]) revert ThunderFi_UserInvalid();
+        _;
+    }
+    modifier validAgreement(uint _id) {
+        if (_id >= idCounter) revert ThunderFi_AgreementIdInvalid();
+        _;
+    }
+
+    function init() public {
+        whitelisted[_msgSender()] = true;
+    }
+
+    function createAgreement(
+        string memory _agreementCID,
+        address _purchaser,
+        address _paymentToken,
+        uint _amount,
+        uint _expiry
+    ) external isWhitelisted(_msgSender()) {
+        uint idToSet = idCounter;
+
+        Agreement memory agreementObject = Agreement(
+            true,
+            false,
+            false,
+            _agreementCID,
+            _paymentToken,
+            _amount,
+            block.timestamp,
+            _expiry,
+            _msgSender(),
+            _purchaser
+        );
+
+        agreements[idToSet] = agreementObject;
+        addressToContracts[_msgSender()].push(idToSet);
+        addressToContracts[_purchaser].push(idToSet);
+
+        ++idCounter;
+
+        emit AgreementStatusUpdate(
+            _msgSender(),
+            _purchaser,
+            block.timestamp,
+            _expiry,
+            1
+        );
+    }
+
+    function getAgreement(
+        uint _id
+    ) external validAgreement(_id) returns (Agreement memory) {
+        return agreements[_id];
     }
 }
