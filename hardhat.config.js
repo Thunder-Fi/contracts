@@ -2,7 +2,12 @@ require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-deploy");
 require("dotenv").config();
 
-const DEPLOYER = process.env.PRIVATE_KEY;
+const DEPLOYER = process.env.PK_DEPLOYER;
+const SELLER = process.env.PK_SELLER;
+const PURCHASER = process.env.PK_PURCHASER;
+
+const GOERLI_RPC = process.env.GOERLI_RPC;
+const ARBITRUM_RPC = process.env.ARBITRUM_RPC;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
@@ -11,6 +16,12 @@ module.exports = {
     deployer: {
       default: 0,
     },
+    seller: {
+      default: 1,
+    },
+    purchaser: {
+      default: 2,
+    },
   },
   networks: {
     hardhat: {
@@ -18,8 +29,13 @@ module.exports = {
     },
     arbitrum: {
       chainId: 42161,
-      url: `https://arb1.arbitrum.io/rpc`,
-      accounts: [DEPLOYER],
+      url: ARBITRUM_RPC,
+      accounts: [DEPLOYER, SELLER, PURCHASER],
+    },
+    goerli: {
+      chainId: 5,
+      url: GOERLI_RPC,
+      accounts: [DEPLOYER, SELLER, PURCHASER],
     },
   },
 };

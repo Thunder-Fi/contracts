@@ -1,10 +1,38 @@
-module.exports = async ({ getNamedAccounts, deployments }) => {
+module.exports = async ({ getNamedAccounts, deployments, ethers }) => {
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { deployer, seller, purchaser } = await getNamedAccounts();
+
+  const provider = ethers.provider;
+  const signerDeployer = provider.getSigner(deployer);
+  // const signerSeller = provider.getSigner(seller);
+  // const signerPurchaser = provider.getSigner(purchaser);
+
+  const mock = new ethers.Contract(Mock.address, Mock.abi, signer);
+
+  const MockUSDC = await deploy("MockToken", {
+    from: deployer,
+    args: ["USD Coin", "USDC"],
+  });
+  console.log("\nDeployed USDC Mocks at   :", MockUSDC.address);
+
+  const MockUSDT = await deploy("MockToken", {
+    from: deployer,
+    args: ["USD Tether", "USDT"],
+  });
+  console.log("Deployed USDT at   :", MockUSDT.address);
+
+  const mockUsdc = new ethers.Contract(
+    MockUSDC.address,
+    MockUSDC.abi,
+    signerDeployer
+  );
+  await mockUsdc.mint(deployer);
+  await mockUsdc.mint(seller);
+  await mockUsdc.mint(purchaser);
 
   await deploy("ThunderFi", {
     from: deployer,
     log: true,
-    args: ["0xaf88d065e77c8cc2239327c5edb3a432268e5831", 6],
+    args: [MockUSDC.address, 6],
   });
 };
