@@ -13,11 +13,11 @@ module.exports = {
     },
   },
   networks: {
-    zkevm: {
-      url: `https://rpc.public.zkevm-test.net`,
-      accounts: [DEPLOYER],
+    hardhat: {
+      chainId: 31337,
     },
     arbitrum: {
+      chainId: 42161,
       url: `https://arb1.arbitrum.io/rpc`,
       accounts: [DEPLOYER],
     },
