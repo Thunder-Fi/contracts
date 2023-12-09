@@ -7,8 +7,6 @@ module.exports = async ({ getNamedAccounts, deployments, ethers }) => {
   // const signerSeller = provider.getSigner(seller);
   // const signerPurchaser = provider.getSigner(purchaser);
 
-  const mock = new ethers.Contract(Mock.address, Mock.abi, signer);
-
   const MockUSDC = await deploy("MockToken", {
     from: deployer,
     args: ["USD Coin", "USDC"],
