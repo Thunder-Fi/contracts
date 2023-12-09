@@ -1,12 +1,12 @@
 require("@nomicfoundation/hardhat-toolbox");
-require("dotenv").config();
 require("hardhat-deploy");
+require("dotenv").config();
 
-const DEPLOYEY = process.env.PRIVATE_KEY;
+const DEPLOYER = process.env.PRIVATE_KEY;
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.19",
+  solidity: "0.8.20",
   namedAccounts: {
     deployer: {
       default: 0,
@@ -15,7 +15,11 @@ module.exports = {
   networks: {
     zkevm: {
       url: `https://rpc.public.zkevm-test.net`,
-      accounts: [DEPLOYEY],
+      accounts: [DEPLOYER],
+    },
+    arbitrum: {
+      url: `https://arb1.arbitrum.io/rpc`,
+      accounts: [DEPLOYER],
     },
   },
 };
