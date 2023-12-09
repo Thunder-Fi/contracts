@@ -99,7 +99,7 @@ contract ThunderFi is Context, Ownable {
 
     function getAgreement(
         uint _id
-    ) external validAgreement(_id) returns (Agreement memory) {
+    ) external view validAgreement(_id) returns (Agreement memory) {
         return agreements[_id];
     }
 }
