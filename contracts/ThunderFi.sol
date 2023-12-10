@@ -57,7 +57,7 @@ contract ThunderFi is Context, Ownable {
     }
 
     modifier isWhitelisted(address _user) {
-        if (whitelisted[_user]) revert ThunderFi_UserInvalid();
+        if (!whitelisted[_user]) revert ThunderFi_UserInvalid();
         _;
     }
 
@@ -88,7 +88,7 @@ contract ThunderFi is Context, Ownable {
         uint _amount,
         uint _expiry
     ) external isWhitelisted(_msgSender()) {
-        if (TXN_TOKEN.allowance(_msgSender(), address(this)) != PLATFORM_FEE)
+        if (TXN_TOKEN.allowance(_msgSender(), address(this)) < PLATFORM_FEE)
             revert ThunderFi_InsufficientApproval();
 
         TXN_TOKEN.transferFrom(_msgSender(), address(this), PLATFORM_FEE);
