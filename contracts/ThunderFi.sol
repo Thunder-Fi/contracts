@@ -44,6 +44,7 @@ contract ThunderFi is Context, Ownable {
     //  3 : Rejected
     //  4 : Settled
     event AgreementStatusUpdate(
+        uint indexed agreementId,
         address indexed seller,
         address indexed purchaser,
         uint timestamp,
@@ -112,6 +113,7 @@ contract ThunderFi is Context, Ownable {
         ++idCounter;
 
         emit AgreementStatusUpdate(
+            idToSet,
             _msgSender(),
             _purchaser,
             block.timestamp,
@@ -136,6 +138,7 @@ contract ThunderFi is Context, Ownable {
         agreeementToPartiesInvolved[_id] = [address(0), address(0)];
 
         emit AgreementStatusUpdate(
+            _id,
             _msgSender(),
             toEmitPurchaser,
             block.timestamp,
@@ -158,6 +161,7 @@ contract ThunderFi is Context, Ownable {
         agreeementToPartiesInvolved[_id] = [address(0), address(0)];
 
         emit AgreementStatusUpdate(
+            _id,
             toEmitSeller,
             _msgSender(),
             block.timestamp,
@@ -181,7 +185,13 @@ contract ThunderFi is Context, Ownable {
 
         agreementObject.status = 4;
 
-        emit AgreementStatusUpdate(_seller, _msgSender(), block.timestamp, 4);
+        emit AgreementStatusUpdate(
+            _id,
+            _seller,
+            _msgSender(),
+            block.timestamp,
+            4
+        );
     }
 
     // ========
